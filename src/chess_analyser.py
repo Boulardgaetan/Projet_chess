@@ -22,7 +22,7 @@ class ChessAnalyser:
         win_rate_losses = [] #Winrate losses, even index for white losses and odd index for black losses
 
         with chess.engine.SimpleEngine.popen_uci(self.stockfish_path) as engine:
-            limit = chess.engine.Limit(time=0.05)  # 50ms per position
+            limit = chess.engine.Limit(time=0.15,depth=14)
             
             for fen in extracted_game.fen_history:
                 board = chess.Board(fen)
@@ -86,7 +86,8 @@ class ChessAnalyser:
         # Creation of the final object
         analysed_game = AnalysedGame(
             extracted_game, 
-            win_rate_losses, 
+            win_rate_losses,
+            moves_analysis,
             playable_moves_count, 
             who_is_winning, 
             centipoints_history
@@ -100,6 +101,7 @@ class AnalysedGame:
         self, 
         game: ExtractedGame, 
         win_rate_losses: list[float], 
+        winrates: list[float],
         playable_moves_count: list[int], 
         who_is_winning: list[str],
         centipoints_history: list[float]
@@ -107,6 +109,7 @@ class AnalysedGame:
         self.headers = game.headers
         self.fen_history = game.fen_history
         self.san = game.san_moves
+        self.winrates = winrates
         self.who_is_winning = who_is_winning
         self.centipoints_history = centipoints_history # <--- Stocké ici !
         
@@ -122,6 +125,9 @@ class AnalysedGame:
         self.readable_evaluation = []
         for cp in centipoints_history:
             if abs(cp) > 90000:
-                self.readable_evaluation.append(f"M{(100000 - abs(cp))}")
+                if f"M{(100000 - abs(cp))}"=="M0":
+                    self.readable_evaluation.append("1 - 0" if cp >0 else "0 - 1")
+                else:
+                    self.readable_evaluation.append(f"M{(100000 - abs(cp))}")
             else:
                 self.readable_evaluation.append(f"{cp / 100:+.2f}") # Affiche par exemple "+1.50" ou "-0.30"
