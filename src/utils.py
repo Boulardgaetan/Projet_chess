@@ -1,8 +1,7 @@
 import os
 import pygame
 
-# 1. On récupère le chemin absolu de CE fichier (utils.py)
-# 2. On remonte d'1 niveaux : src -> Projet échecs
+# Gets the ROOT of the project to ensure the project to compute whether the location
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def get_path(*args):

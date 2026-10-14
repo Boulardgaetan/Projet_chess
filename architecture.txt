@@ -1,17 +1,17 @@
-/Projet échecs
+/Projet_chess
     |
-    |__ /assets (contient les images, les sons et le livre de coups théoriques)
+    |__ /assets (includes images, sounds and bookmoves' book)
     |__ /env1
-    |__ partie.png (contient le PGN d'une partie que j'ai jouée)
-    |__ run.py (lance les scripts de src)
-    |__ architecture.txt (contient l'architecture du projet) <-- Vous êtes ici
-    |__ /stockfish (contient le moteur d'analyse)
-         |__ stockfish.exe (l'exécutable stockfish)
+    |__ partie.png (Include the PGN of one of my games)
+    |__ run.py (launch the scripts from src)
+    |__ architecture.txt (Includes the architecture of the project) <-- You are here
+    |__ /stockfish (Includes the analyser of the games)
+         |__ stockfish.exe (the stockfish executable)
          |__ ...
     |__ /src
          |__ __init__py
-         |__ chess_analyser.py (gère l'analyse des coups)
-         |__ gui.py (gère l'interface graphique )
-         |__ parser.py (gère l'extraction d'un fichier au format pgn)
-         |__ utils.py (contient les méthodes utilitaires)
-         |__ game.py (contient la boucle du jeu et la gestion d'événements)
+         |__ chess_analyser.py (Handles the moves analysis)
+         |__ gui.py (Handles the graphic interface)
+         |__ parser.py (Handles the extraction of a game from a PGN file)
+         |__ utils.py (Includes the utilitary methods)
+         |__ game.py (Handles events and coordination between the other files)

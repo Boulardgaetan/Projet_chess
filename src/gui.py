@@ -2,10 +2,10 @@ import pygame
 import chess
 from src.utils import global_asset_manager
 
-# Configuration visuelle
+# Visual configuration
 SQUARE_SIZE = 80
-LIGHT_COLOR = (240, 217, 181)  # Beige clair
-DARK_COLOR = (181, 136, 99)    # Marron
+LIGHT_COLOR = (240, 217, 181)  # Cream
+DARK_COLOR = (181, 136, 99)    # Brown
 
 
 
@@ -17,11 +17,11 @@ def draw_board(screen, board: chess.Board, font):
             x = file * SQUARE_SIZE
             y = (7 - rank) * SQUARE_SIZE
             
-            # 1. Dessin de la case
+            # Draws the square
             color = LIGHT_COLOR if (rank + file) % 2 == 1 else DARK_COLOR
             pygame.draw.rect(screen, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
             
-            # 2. Dessin de la pièce
+            # Draws the piece
             if rank*8+file in board_state.keys():
                 piece = board_state[rank*8+file]
                 if piece.color:
@@ -39,12 +39,11 @@ def draw_board(screen, board: chess.Board, font):
                     text_rect = text_surface.get_rect(center=(x + SQUARE_SIZE//2, y + SQUARE_SIZE//2))
                     screen.blit(text_surface, text_rect)
                 else:
-                    # 1. Charger l'image (piece.image contient le nom ou le chemin relatif du sprite)
-                    # Si piece.image est déjà une surface Pygame chargée, tu peux sauter pygame.image.load
+                    # Loads the image from the global_asset_manager
                     raw_image = global_asset_manager.get_image(type)
 
-                    # 2. Redimensionner l'image à la taille de la case
+                    # Rescales the image to fit the square
                     scaled_image = pygame.transform.smoothscale(raw_image, (SQUARE_SIZE, SQUARE_SIZE))
 
-                    # 3. L'afficher au bon endroit (x, y correspond déjà au coin supérieur gauche de la case)
+                    # Prints it at the right location
                     screen.blit(scaled_image, (x, y))

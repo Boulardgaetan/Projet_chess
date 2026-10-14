@@ -11,23 +11,23 @@ class ChessAnalyser:
         self.analysed_games = []
 
     def centipoints_to_win_rate(self, cp: float) -> float:
-        """Convertit un score en centipions en une probabilité de victoire (entre 0 et 1)."""
+        """Converts the centipawn evaluation from stockfish in win probabilities"""
         return 1 / (1 + math.exp(-0.00368208 * cp))
 
     def analyse_game(self, extracted_game: ExtractedGame):
-        """Analyse la partie avec Stockfish : win-rate, pertes, complexité et centipions."""
-        moves_analysis = []       # Win-rate de la position (meilleur coup)
-        playable_moves_count = [] # Nombre de coups viables par position
-        centipoints_history = []  # Score brut en centipions (ou mat) par position
-        win_rate_losses = []
+        """Analyses the game with Stockfish : win-rate, losses, complexity and centipawns."""
+        moves_analysis = []       # Win-rate of the position(best move)
+        playable_moves_count = [] # Number of playable move for each position
+        centipoints_history = []  # Brut_score of the positions
+        win_rate_losses = [] #Winrate losses, even index for white losses and odd index for black losses
 
         with chess.engine.SimpleEngine.popen_uci(self.stockfish_path) as engine:
-            limit = chess.engine.Limit(time=0.05)  # 50ms par position
+            limit = chess.engine.Limit(time=0.05)  # 50ms per position
             
             for fen in extracted_game.fen_history:
                 board = chess.Board(fen)
                 
-                # Gestion des fins de partie
+                # Handling game endings
                 if board.is_game_over():
                     if board.is_checkmate():
                         win_prob = 0.0 if board.turn == chess.WHITE else 1.0
@@ -41,7 +41,7 @@ class ChessAnalyser:
                     centipoints_history.append(cp_val)
                     continue
 
-                # On demande à Stockfish les 5 meilleurs coups (MultiPV)
+                # Asks stockfish the 5 best moves
                 infos = engine.analyse(board, limit, multipv=5)
                 
                 position_win_rates = []
@@ -50,7 +50,7 @@ class ChessAnalyser:
                     raw_score = info["score"].white()
                     score_cp = raw_score.score(mate_score=100000)
                     
-                    # On récupère le score centipion du meilleur coup (index 0)
+                    # Extracts the evaluation of the best move
                     if idx == 0:
                         best_cp = score_cp
                         
@@ -60,12 +60,12 @@ class ChessAnalyser:
                 moves_analysis.append(best_win_prob)
                 centipoints_history.append(best_cp)
 
-                # Calcul du nombre de "coups jouables"
+                # Calculs the number of playable moves
                 threshold = 0.05
                 good_moves = sum(1 for wp in position_win_rates if abs(wp - best_win_prob) <= threshold)
                 playable_moves_count.append(good_moves)
 
-        # Calcul des pertes de win-rate par coup
+        # Calculs winrate losses per moves
         for i in range(len(moves_analysis) - 1):
             prob_before = moves_analysis[i]
             prob_after = moves_analysis[i + 1]
@@ -78,12 +78,12 @@ class ChessAnalyser:
             loss = max(0.0, loss)
             win_rate_losses.append(loss)
 
-        # Calcul de qui est en train de gagner (nettoyé de l'élément en trop)
+        # Calculs who is winning
         who_is_winning = []
         for wp in moves_analysis:
             who_is_winning.append("w" if wp > 0.6 else "b" if wp < 0.4 else "equal")
 
-        # Création de l'objet final enrichi
+        # Creation of the final object
         analysed_game = AnalysedGame(
             extracted_game, 
             win_rate_losses, 

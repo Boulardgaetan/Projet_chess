@@ -7,61 +7,58 @@ from src.parser import ExtractedGame
 
 class Game:
     def __init__(self, my_game):
-        # 1. Initialisation de l'historique global
+        # Initializes the fen history
         self.fen_history = []
         self.current_pos_idx = 0
-        self.current_board = None
         
-        # 2. Initialisation Pygame
+        # Initialization of Pygame
         self.screen = pygame.display.set_mode((SQUARE_SIZE * 8, SQUARE_SIZE * 8))
         pygame.display.set_caption("Moteur d'Échecs - Analyseur Pro")
         self.font = pygame.font.SysFont("arial", 40, bold=True)
         self.clock = pygame.time.Clock()
         
-        # 3. Le jeu extrait
+        # Extracted Game
         self.extracted_game = ExtractedGame(my_game)
         self.fen_history = self.extracted_game.build_fen_history()
         self.board = Board(self.fen_history[0])
 
-        # 4. Le jeu analysé
+        # Analysed Game
         self.chess_analyser = ChessAnalyser()
         self.chess_analyser.analyse_game(self.extracted_game)
         self.analysed_game = self.chess_analyser.analysed_games[0]
-        print(self.analysed_game.readable_evaluation)
 
     def handle_events(self):
-        """Gère les entrées clavier pour naviguer dans self.fen_history."""
+        """Handles input to navigate through the game"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
                 
             if event.type == pygame.KEYDOWN:
-                # Flèche Droite : Coup suivant
+                # Right arrow : next position
                 if event.key == pygame.K_RIGHT and self.current_pos_idx < len(self.fen_history) - 1:
                     self.current_pos_idx += 1
                 
-                # Flèche Gauche : Coup précédent
+                # Left arrow : precedent position
                 elif event.key == pygame.K_LEFT and self.current_pos_idx > 0:
                     self.current_pos_idx -= 1
                 
-                # 🏠 Touche Origine/Home : Revenir au début
+                # Down arrow : initial position
                 elif event.key == pygame.K_DOWN:
                     self.current_pos_idx = 0
                 
-                # Touche Fin/End : Aller au dernier coup joué
+                # Upper arrow : Last position/Termination of the game
                 elif event.key == pygame.K_UP:
                     self.current_pos_idx = len(self.fen_history) - 1
 
-                # On applique la FEN de l'index actuel sur le plateau d'affichage
+                # Instanciates the board with the right position
                 self.board = Board(self.fen_history[self.current_pos_idx])
 
     def run(self):
-        """Boucle principale de rendu graphique."""
+        """Main loop for graphical renderer"""
         while True:
             self.handle_events()
             
-            # On passe self.display_board à ton module de dessin passif
             draw_board(self.screen, self.board, self.font)
             
             pygame.display.flip()
