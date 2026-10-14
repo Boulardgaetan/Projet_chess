@@ -2,7 +2,7 @@ import pygame
 import sys
 from chess import Board
 from src.chess_analyser import ChessAnalyser,AnalysedGame
-from src.gui import draw_board, SQUARE_SIZE
+from src.gui import draw_board, draw_bar, SQUARE_SIZE
 from src.parser import ExtractedGame
 
 class Game:
@@ -12,9 +12,9 @@ class Game:
         self.current_pos_idx = 0
         
         # Initialization of Pygame
-        self.screen = pygame.display.set_mode((SQUARE_SIZE * 8, SQUARE_SIZE * 8))
+        self.screen = pygame.display.set_mode((400+SQUARE_SIZE * 8, SQUARE_SIZE * 8))
         pygame.display.set_caption("Moteur d'Échecs - Analyseur Pro")
-        self.font = pygame.font.SysFont("arial", 40, bold=True)
+        self.font = pygame.font.SysFont("arial", 12, bold=True)
         self.clock = pygame.time.Clock()
         
         # Extracted Game
@@ -58,8 +58,10 @@ class Game:
         """Main loop for graphical renderer"""
         while True:
             self.handle_events()
+
             
             draw_board(self.screen, self.board, self.font)
+            draw_bar(self.screen,self.analysed_game.winrates[self.current_pos_idx], self.analysed_game.readable_evaluation[self.current_pos_idx],self.font)
             
             pygame.display.flip()
             self.clock.tick(60)

@@ -4,9 +4,22 @@ from src.utils import global_asset_manager
 
 # Visual configuration
 SQUARE_SIZE = 80
+HEIGHT = 640
+WIDTH = 45
 LIGHT_COLOR = (240, 217, 181)  # Cream
 DARK_COLOR = (181, 136, 99)    # Brown
 
+def draw_bar(screen, winrate, eval, font):
+    """Draws the evaluation bar in the left"""
+    white_height = int(winrate*HEIGHT)
+    black_height = HEIGHT - white_height
+
+    text_surface = font.render(str(eval), True, (0,0,0))
+    text_rect = text_surface.get_rect(center=(WIDTH//2,18))
+
+    pygame.draw.rect(screen, LIGHT_COLOR, (0, black_height, WIDTH, white_height))
+    pygame.draw.rect(screen, DARK_COLOR, (0,0,WIDTH,black_height))
+    screen.blit(text_surface, text_rect)
 
 
 def draw_board(screen, board: chess.Board, font):
@@ -14,7 +27,7 @@ def draw_board(screen, board: chess.Board, font):
     board_state = board.piece_map()
     for rank in range(8):
         for file in range(8):
-            x = file * SQUARE_SIZE
+            x = 50+file * SQUARE_SIZE
             y = (7 - rank) * SQUARE_SIZE
             
             # Draws the square
