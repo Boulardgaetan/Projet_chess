@@ -1,0 +1,17 @@
+[Event "Vs. Computer"]
+[Site "Chess.com"]
+[Date "+58675-10-26"]
+[White "Raito_bzh"]
+[Black "Levy"]
+[Result "1-0"]
+[WhiteElo "898"]
+[BlackElo "1600"]
+[TimeControl "-"]
+[Termination "Raito_bzh won by checkmate"]
+
+1. e4 e5 2. Nf3 d5 3. exd5 Qxd5 4. Nc3 Qc5 5. d4 Qe7 6. dxe5 Nc6 7. Bb5 a6 8.
+Bxc6+ bxc6 9. O-O Qd7 10. Bd2 Rb8 11. Re1 Ne7 12. Ng5 h6 13. Nxf7 Kxf7 14. e6+
+Qxe6 15. Rxe6 Bxe6 16. Qf3+ Kg8 17. Re1 Bf7 18. Ne4 Rxb2 19. Qg3 Kh7 20. Bc3
+Rxa2 21. Qd3 Bg6 22. h4 Nf5 23. h5 Bf7 24. Ng5+ hxg5 25. Qxf5+ Kg8 26. Rd1 Rxh5
+27. Rd7 Bc4 28. Rd8 Bf7 29. Qc8 Rxc2 30. Rxf8+ Kh7 31. Qf5+ Bg6 32. Rh8+ Kxh8
+33. Qf8+ Kh7 34. Qxg7# 1-0
