@@ -12,8 +12,8 @@ class ExtractedGame:
     def _extract_headers(self) -> dict[str,str]:
         """Extracts the main metadatas of the game"""
         return {
-            "white": self.game.headers.get("White", "Inconnu"),
-            "black": self.game.headers.get("Black", "Inconnu"),
+            "white": self.game.headers.get("White", "Unknown"),
+            "black": self.game.headers.get("Black", "Unknown"),
             "result": self.game.headers.get("Result", "*"),
             "white_elo": self.game.headers.get("WhiteElo", "?"),
             "black_elo": self.game.headers.get("BlackElo", "?"),

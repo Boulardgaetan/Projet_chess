@@ -5,7 +5,7 @@ import pygame
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def get_path(*args):
-    """Calcule un chemin absolu à partir de la racine du projet."""
+    """Computes the absolute path from the root of the project"""
     return os.path.join(PROJECT_ROOT, *args)
 
 class AssetManager:

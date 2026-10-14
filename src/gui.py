@@ -23,7 +23,7 @@ def draw_bar(screen, winrate, eval, font):
 
 
 def draw_board(screen, board: chess.Board, font):
-    """Dessine l'échiquier et les pièces en fonction du board passé en paramètre."""
+    """Draws the chessboard from the board given"""
     board_state = board.piece_map()
     for rank in range(8):
         for file in range(8):

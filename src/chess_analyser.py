@@ -19,7 +19,7 @@ class ChessAnalyser:
         moves_analysis = []       # Win-rate of the position(best move)
         playable_moves_count = [] # Number of playable move for each position
         centipoints_history = []  # Brut_score of the positions
-        win_rate_losses = [] #Winrate losses, even index for white losses and odd index for black losses
+        win_rate_losses = []      # Winrate losses, even index for white losses and odd index for black losses
 
         with chess.engine.SimpleEngine.popen_uci(self.stockfish_path) as engine:
             limit = chess.engine.Limit(time=0.15,depth=14)
@@ -70,9 +70,9 @@ class ChessAnalyser:
             prob_before = moves_analysis[i]
             prob_after = moves_analysis[i + 1]
             
-            if i % 2 == 0:  # Blancs
+            if i % 2 == 0:  # White
                 loss = prob_before - prob_after
-            else:           # Noirs
+            else:           # Black
                 loss = prob_after - prob_before
                 
             loss = max(0.0, loss)
