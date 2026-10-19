@@ -22,7 +22,7 @@ class ChessAnalyser:
         win_rate_losses = []      # Winrate losses, even index for white losses and odd index for black losses
 
         with chess.engine.SimpleEngine.popen_uci(self.stockfish_path) as engine:
-            limit = chess.engine.Limit(time=0.15,depth=14)
+            limit = chess.engine.Limit(depth=14)
             
             for fen in extracted_game.fen_history:
                 board = chess.Board(fen)
