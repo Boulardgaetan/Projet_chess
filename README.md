@@ -4,6 +4,39 @@ This project aims to create a single-game Elo performance estimator. Indeed, pro
 
 That is why I intend to provide an open-source analyzer under the terms of the GNU General Public License v3.0.
 
+## Project architecture
+
+## Project Structure
+
+```text
+/Projet_chess
+│
+├── assets/                    # Images, sounds, and opening book
+├── env1/                      # Python virtual environment
+├── stockfish/                 # Stockfish engine binary
+│   └── stockfish.exe
+│
+├── src/                       # Main source code directory
+│   ├── __init__.py
+│   ├── chess_analyser.py      # Handles moves analysis
+│   ├── gui.py                 # Handles the graphical interface
+│   ├── parser.py              # Extracts games from PGN files
+│   ├── utils.py               # Utilitary methods
+│   └── game.py                # Event handling and coordination
+│
+├── from_games_to_regression/  # Model calibration pipeline
+│   ├── dataset.csv            # Extracted data for regression
+│   ├── Performance.bin        # Book moves filtered out from analysis
+│   ├── games.pgn              # Official games used for calibration
+│   ├── from_pgn_to_data.py    # Extracts reliable data into dataset.csv
+│   └── from_dataset_to_model.py # Calculates regression coefficients via scipy
+│
+├── partie.png                 # Sample game / PGN illustration
+├── LICENSE                    # GNU GPLv3 License
+├── README.md                  # Project documentation
+└── run.py                     # Main entry point to launch scripts
+```
+
 ## Prerequisites and Installation
 
 ### 1. Requirements
