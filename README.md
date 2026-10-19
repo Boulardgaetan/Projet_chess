@@ -1,4 +1,4 @@
-### The goal of the Project
+## The goal of the Project
 
 This project is about creating an ICF ELO performance estimator of one game. Indeed, the professional analyzers are mainly not available with every features, which prevents players to have great free estimations.
 
