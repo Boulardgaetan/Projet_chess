@@ -4,8 +4,6 @@ This project aims to create a single-game Elo performance estimator. Indeed, pro
 
 That is why I intend to provide an open-source analyzer under the terms of the GNU General Public License v3.0.
 
-## Project architecture
-
 ## Project Structure
 
 ```text
@@ -29,7 +27,7 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 │   ├── Performance.bin        # Book moves filtered out from analysis
 │   ├── games.pgn              # Official games used for calibration
 │   ├── from_pgn_to_data.py    # Extracts reliable data into dataset.csv
-│   └── from_dataset_to_model.py # Calculates regression coefficients via scipy
+│   └── from_csv_to_model.py   # Calculates regression coefficients via scipy
 │
 ├── partie.png                 # Sample game / PGN illustration
 ├── LICENSE                    # GNU GPLv3 License
