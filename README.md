@@ -22,7 +22,7 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 │   ├── utils.py               # Utilitary methods
 │   └── game.py                # Event handling and coordination
 │
-├── from_games_to_regression/  # Model calibration pipeline
+├── calculate_model/           # Model calibration pipeline
 │   ├── dataset.csv            # Extracted data for regression
 │   ├── Performance.bin        # Book moves filtered out from analysis
 │   ├── games.pgn              # Official games used for calibration
