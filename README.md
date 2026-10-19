@@ -2,7 +2,7 @@
 
 This project aims to create a single-game Elo performance estimator. Indeed, professional analysis tools often lack full features, preventing players from getting accurate free estimates.
 
-That is why I intend to provide an open-source analyzer.
+That is why I intend to provide an open-source analyzer under the terms of the GNU General Public License v3.0.
 
 ## Dependencies and Tools
 - **Stockfish**: Used for analyzing positions (`depth=14`, `MultiPV=5`). More information on the engine's official website: [stockfishchess.org](https://stockfishchess.org/).
