@@ -1,2 +1,13 @@
-# Ignore le dossier stockfish et son contenu
+# Ignore the stockfish folder and its content
 stockfish/
+
+# Ignore the environnement folder and its content
+env1/
+env/
+venv/
+.venv/
+.env
+
+# Cache python
+__pycache__/
+*.pyc
