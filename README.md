@@ -14,7 +14,7 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 Install the required Python packages using `pip`:
 
 ```bash
-pip install chess pandas numpy scipy
+pip install pygame chess pandas numpy scipy
 ```
 
 ## Dependencies and Tools
