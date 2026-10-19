@@ -10,8 +10,24 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 - **Python 3.10+**
 - **Stockfish Engine**: Download the official Stockfish binary corresponding to your operating system from [stockfishchess.org](https://stockfishchess.org/). Extract the folder (rename it `stockfish`) and place it at the root of the project.
 
-### 2. Python Dependencies
-Install the required Python packages using `pip`:
+### 2. Setup Virtual Environment (Recommended)
+*Note: Make sure you are at the root of the project repository before running these commands.*
+
+Create and activate an isolated Python environment:
+
+- **On Linux/macOS:**
+  ```bash
+  python3 -m venv venv
+  source venv/bin/activate
+  ```
+- **On Windows**
+  ```Powershell
+  python -m venv venv
+  venv/Scripts/activate.ps1
+  ```
+
+### 3. Python Dependencies
+Install the required packages within your active environment:
 
 ```bash
 pip install pygame chess pandas numpy scipy
