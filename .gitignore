@@ -1,13 +1,21 @@
-# Ignore the stockfish folder and its content
+# Ignores the stockfish folder and its content
 stockfish/
 
-# Ignore the environnement folder and its content
+# Ignores the environnement file or folder and its content
 env1/
 env/
 venv/
 .venv/
 .env
 
-# Cache python
+# Ignores the pycache
 src/__pycache__/
 *.pyc
+
+# Ignores the heavy files from calculate_model
+calculate_model/games.pgn
+calculate_model/dataset.csv
+
+# Ignores the book moves file Performance.bin and the pgn from my game
+assets/book_moves/Performance.bin
+partie.pgn
