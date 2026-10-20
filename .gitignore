@@ -16,5 +16,6 @@ src/__pycache__/
 calculate_model/games.pgn
 calculate_model/dataset.csv
 
-# Ignores the book moves file Performance.bin
+# Ignores the book moves file Performance.bin and the pgn from my game
 assets/book_moves/Performance.bin
+partie.pgn
