@@ -24,7 +24,6 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 │
 ├── calculate_model/           # Model calibration pipeline
 │   ├── dataset.csv            # Extracted data for regression
-│   ├── Performance.bin        # Book moves filtered out from analysis
 │   ├── games.pgn              # Official games used for calibration
 │   ├── from_pgn_to_data.py    # Extracts reliable data into dataset.csv
 │   └── from_csv_to_model.py   # Calculates regression coefficients via scipy
