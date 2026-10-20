@@ -14,5 +14,7 @@ src/__pycache__/
 
 # Ignores the heavy files from calculate_model
 calculate_model/games.pgn
-calculate_model/Performance.bin
 calculate_model/dataset.csv
+
+# Ignores the book moves file Performance.bin
+assets/book_moves/Performance.bin
