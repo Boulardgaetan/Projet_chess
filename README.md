@@ -24,7 +24,8 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 │
 ├── calculate_model/           # Model calibration pipeline
 │   ├── dataset.csv            # Extracted data for regression
-│   ├── Performance.bin        # Book moves filtered out from analysis
+│   ├── progress.json          # Indicates the state of the data acquisition
+│   ├── extracted_games.pgn    # Extracted games by the script from_pgn_to_data.py
 │   ├── games.pgn              # Official games used for calibration
 │   ├── from_pgn_to_data.py    # Extracts reliable data into dataset.csv
 │   └── from_csv_to_model.py   # Calculates regression coefficients via scipy
@@ -32,6 +33,7 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 ├── partie.png                 # Sample game / PGN illustration
 ├── LICENSE                    # GNU GPLv3 License
 ├── README.md                  # Project documentation
+├── run_calculate_model.py     # Runs the script from_pgn_to_data.py
 └── run.py                     # Main entry point to launch scripts
 ```
 

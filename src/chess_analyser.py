@@ -2,17 +2,13 @@ import math
 import chess
 import chess.engine
 from src.parser import ExtractedGame
-from src.utils import get_path
+from src.utils import get_path, centipoints_to_win_rate,estimer_elo_partie
 
 class ChessAnalyser:
 
     def __init__(self):
         self.stockfish_path = get_path("stockfish", "stockfish.exe")
         self.analysed_games = []
-
-    def centipoints_to_win_rate(self, cp: float) -> float:
-        """Converts the centipawn evaluation from stockfish in win probabilities"""
-        return 1 / (1 + math.exp(-0.00368208 * cp))
 
     def analyse_game(self, extracted_game: ExtractedGame):
         """Analyses the game with Stockfish : win-rate, losses, complexity and centipawns."""
@@ -54,7 +50,7 @@ class ChessAnalyser:
                     if idx == 0:
                         best_cp = score_cp
                         
-                    position_win_rates.append(self.centipoints_to_win_rate(score_cp))
+                    position_win_rates.append(centipoints_to_win_rate(score_cp))
 
                 best_win_prob = position_win_rates[0]
                 moves_analysis.append(best_win_prob)
@@ -93,6 +89,9 @@ class ChessAnalyser:
             centipoints_history
         )
         self.analysed_games.append(analysed_game)
+        print(estimer_elo_partie(analysed_game.black_losses),estimer_elo_partie(analysed_game.white_losses))
+        print(analysed_game.white_losses)
+        print(analysed_game.black_losses)
 
 
 class AnalysedGame:
