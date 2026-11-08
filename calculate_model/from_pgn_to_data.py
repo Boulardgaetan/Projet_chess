@@ -7,7 +7,8 @@ import chess.engine
 import chess.polyglot
 from src.utils import centipoints_to_win_rate
 
-def get_elo_bracket(elo):
+def get_elo_bracket(elo: int) -> str:
+    """Determines the Elo bracket for a given rating."""
     if elo < 1600:
         return "1400-1600"
     elif elo < 1800:
@@ -19,11 +20,12 @@ def get_elo_bracket(elo):
     elif elo < 2400:
         return "2200-2400"
     elif elo < 2600:
-        return '2400-2600'
+        return "2400-2600"
     else:
         return "2600+"
 
 def is_game_valid(game, quotas, max_per_bracket=100, min_length=25, min_elo=1400):
+    """Validates if a game meets length, Elo thresholds, and bracket quotas."""
     moves = list(game.mainline_moves())
     if len(moves) < min_length:
         return False
@@ -73,16 +75,17 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
     
     start_game_count = 0
     
+    # Restore progress from JSON file if it exists
     if os.path.exists(json_path) and os.path.getsize(json_path) > 0:
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 start_game_count = data.get("last_game_count", 0)
                 quotas = data.get("quotas", quotas)
-                print(f"Reprise de l'extraction à partir de la partie #{start_game_count}...")
-                print(f"Quotas actuels restaurés : {quotas}")
+                print(f"Resuming extraction from game #{start_game_count}...")
+                print(f"Restored quotas: {quotas}")
         except json.JSONDecodeError:
-            print("Le fichier de progression JSON est vide ou corrompu. Reprise à la partie #0.")
+            print("JSON progress file is empty or corrupted. Restarting from game #0.")
             start_game_count = 0
 
     with open(games_path, "r", encoding="utf-8", errors="ignore") as pgn_file, \
@@ -102,7 +105,7 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
             while True:
                 game = chess.pgn.read_game(pgn_file)
                 if game is None:
-                    print("Fin du fichier PGN atteinte.")
+                    print("End of PGN file reached.")
                     break
                     
                 game_count += 1
@@ -111,9 +114,9 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
                     continue
                 
                 if game_count % 100 == 0:
-                    print(f"Lecture en cours... {game_count} parties lues.")
+                    print(f"Reading in progress... {game_count} games read.")
 
-                # 1. Vérification basique (longueur et plancher Elo)
+                # 1. Basic validation (length and Elo floor)
                 moves = list(game.mainline_moves())
                 if len(moves) < 25:
                     continue
@@ -135,15 +138,14 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
                 bracket_white = get_elo_bracket(white_elo)
                 bracket_black = get_elo_bracket(black_elo)
                 
-                # Vérification des quotas sans les modifier tout de suite
+                # Check quotas without modifying them immediately
                 space_for_white = quotas.get(bracket_white, 0) < max_per_bracket
                 space_for_black = quotas.get(bracket_black, 0) < max_per_bracket
                 
                 if not space_for_white and not space_for_black:
                     continue
 
-                # --- À PARTIR D'ICI, LA PARTIE EST RETENUE ---
-                
+                # --- FROM THIS POINT, THE GAME IS KEPT ---
                 white_elo_val = game.headers.get("WhiteElo", "?")
                 black_elo_val = game.headers.get("BlackElo", "?")
 
@@ -152,7 +154,7 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
                 playable_moves_count = []
                 limit = chess.engine.Limit(depth=14)
 
-                # 2. Analyse Stockfish
+                # 2. Stockfish Analysis
                 for move in game.mainline_moves():
                     is_book_move = any(entry.move == move for entry in reader.find_all(board))
                     
@@ -187,7 +189,7 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
 
                     board.push(move)
 
-                # 3. Calcul des pertes
+                # 3. Loss Calculation
                 game_moves_data = []
                 for i in range(len(moves_analysis) - 1):
                     prob_before = moves_analysis[i]
@@ -200,22 +202,22 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
                         loss = max(0.0, prob_after - prob_before)
                         game_moves_data.append((black_elo_val, loss, playable_moves_count[i]))
 
-                # --- 4. TOUT A RÉUSSI : ON VALIDE ET ON ENREGISTRE TOUT EN MÊME TEMPS ---
+                # --- 4. SUCCESS: VALIDATE AND SAVE EVERYTHING AT ONCE ---
                 if space_for_white:
                     quotas[bracket_white] += 1
                 if space_for_black:
                     quotas[bracket_black] += 1
 
-                # Écriture dans le PGN de sortie
+                # Write to output PGN
                 exporter = chess.pgn.StringExporter(columns=80, headers=True, comments=True, variations=True)
                 game_string = game.accept(exporter)
                 print(game_string, file=pgn_out, end="\n\n", flush=True)
 
-                # Écriture dans le CSV
+                # Write to CSV dataset
                 csv_writer.writerows(game_moves_data)
                 csv_out.flush()
 
-                # Mise à jour du fichier JSON de progression
+                # Update JSON progress file
                 with open(json_path, "w", encoding="utf-8") as pf:
                     json.dump({
                         "last_game_count": game_count,
@@ -223,7 +225,7 @@ def run(games_path, stockfish_path, bookmoves_path, extract_path, json_path, csv
                     }, pf, indent=4)
                 
                 if all(count >= max_per_bracket for count in quotas.values()):
-                    print("Tous les quotas de tranches Elo ont été atteints !")
+                    print("All Elo bracket quotas have been reached!")
                     break
 
-    print("Extraction et sauvegarde dynamique terminées avec succès !")
+    print("Dynamic extraction and backup completed successfully!")

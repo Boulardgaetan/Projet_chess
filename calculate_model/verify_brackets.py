@@ -4,10 +4,11 @@ import os
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-extract_path = os.path.join(PROJECT_ROOT, "calculate_model","extracted_games.pgn")
-csv_path = os.path.join(PROJECT_ROOT, "calculate_model","dataset.csv")
+extract_path = os.path.join(PROJECT_ROOT, "calculate_model", "extracted_games.pgn")
+csv_path = os.path.join(PROJECT_ROOT, "calculate_model", "dataset.csv")
 
-def get_elo_bracket(elo):
+def get_elo_bracket(elo: int) -> str:
+    """Determines the Elo bracket for a given rating."""
     if elo < 1600:
         return "1400-1600"
     elif elo < 1800:
@@ -19,35 +20,39 @@ def get_elo_bracket(elo):
     elif elo < 2400:
         return "2200-2400"
     elif elo < 2600:
-        return '2400-2600'
+        return "2400-2600"
     else:
         return "2600+"
 
 with open(extract_path, "r", encoding="utf-8") as extracted_games:
     quotas = {
-            "1400-1600": 0,
-            "1600-1800": 0,
-            "1800-2000": 0,
-            "2000-2200": 0,
-            "2200-2400": 0,
-            "2400-2600": 0,
-            "2600+": 0
-        }
+        "1400-1600": 0,
+        "1600-1800": 0,
+        "1800-2000": 0,
+        "2000-2200": 0,
+        "2200-2400": 0,
+        "2400-2600": 0,
+        "2600+": 0
+    }
     game_count = 0
 
     while True:
         game = pgn.read_game(extracted_games)
         if game is None:
-            print("Fin du fichier PGN atteinte.")
+            print("End of PGN file reached.")
             break
-                    
+                
+        white_elo_str = game.headers.get("WhiteElo", "")
+        black_elo_str = game.headers.get("BlackElo", "")
+
+        # Safely parse Elo ratings (skip games with missing or invalid ratings)
+        try:
+            white_elo = int(white_elo_str)
+            black_elo = int(black_elo_str)
+        except ValueError:
+            continue
+
         game_count += 1
-
-        white_elo_str = game.headers.get("WhiteElo")
-        black_elo_str = game.headers.get("BlackElo")
-
-        white_elo = int(white_elo_str)
-        black_elo = int(black_elo_str)
 
         bracket_white = get_elo_bracket(white_elo)
         bracket_black = get_elo_bracket(black_elo)
@@ -55,13 +60,15 @@ with open(extract_path, "r", encoding="utf-8") as extracted_games:
         quotas[bracket_white] += 1
         quotas[bracket_black] += 1
 
-print(game_count)
+print(f"Total processed games: {game_count}")
+print("Elo brackets distribution (players count):")
 print(quotas)
 
-# Chargement de ton dataset final
-df = pd.read_csv(csv_path)
-
-# 1. Trier les coups par tranche d'Elo ou par Elo réel du joueur
-df_sorted = df.sort_values(by="Elo", ascending=True)
-
-df_sorted.to_csv(csv_path, index=False)
+# Load the final dataset and sort moves by ascending Elo
+if os.path.exists(csv_path):
+    df = pd.read_csv(csv_path)
+    df_sorted = df.sort_values(by="Elo", ascending=True)
+    df_sorted.to_csv(csv_path, index=False)
+    print("Dataset successfully sorted by Elo.")
+else:
+    print(f"Warning: Dataset not found at {csv_path}")

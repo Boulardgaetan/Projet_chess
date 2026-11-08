@@ -1,29 +1,31 @@
+import os
+import pygame
+import math
 import chess
-import chess.engine
-import chess.polyglot
-from src.parser import ExtractedGame
-from src.utils import get_path, centipoints_to_win_rate, estimer_elo_partie
+from utils import get_path, estimate_game_elo, centipoints_to_win_rate
+from parser import ExtractedGame
+import numpy as np
 
 class ChessAnalyser:
 
     def __init__(self):
         self.stockfish_path = get_path("stockfish", "stockfish.exe")
-        self.book_path = get_path("assets","book_moves","Performance.bin")
+        self.book_path = get_path("assets", "book_moves", "Performance.bin")
         self.analysed_games = []
 
     def analyse_game(self, extracted_game: ExtractedGame):
-        """Analyses the game with Stockfish : win-rate, losses, complexity and centipawns."""
+        """Analyses the game with Stockfish: win-rate, losses, complexity, and centipawns."""
         moves_analysis = [] 
         playable_moves_count = [] 
         centipoints_history = [] 
         win_rate_losses = [] 
-        is_book_move_list = [] # <--- Pour tracer si le coup est de la théorie
+        is_book_move_list = []
 
-        # Ouverture simultanée du moteur et du livre d'ouvertures
+        # Simultaneous opening of engine and Polyglot book
         try:
             book_reader = chess.polyglot.open_reader(self.book_path)
         except Exception:
-            book_reader = None  # Sécurité si le fichier est absent
+            book_reader = None  # Fallback safety if the path is invalid
 
         with chess.engine.SimpleEngine.popen_uci(self.stockfish_path) as engine:
             limit = chess.engine.Limit(depth=14)
@@ -31,7 +33,7 @@ class ChessAnalyser:
             for fen in extracted_game.fen_history:
                 board = chess.Board(fen)
                 
-                # 1. Vérification si la position actuelle est dans le livre d'ouverture
+                # Check if the current position is in the Polyglot book
                 in_book = False
                 if book_reader is not None:
                     try:
@@ -41,7 +43,7 @@ class ChessAnalyser:
                         in_book = False
                 is_book_move_list.append(in_book)
 
-                # Handling game endings
+                # Handle game endings
                 if board.is_game_over():
                     if board.is_checkmate():
                         win_prob = 0.0 if board.turn == chess.WHITE else 1.0
@@ -55,7 +57,7 @@ class ChessAnalyser:
                     centipoints_history.append(cp_val)
                     continue
 
-                # Asks stockfish the 5 best moves
+                # Query Stockfish for the 5 best moves (MultiPV=5)
                 infos = engine.analyse(board, limit, multipv=5)
                 
                 position_win_rates = []
@@ -77,22 +79,22 @@ class ChessAnalyser:
                 good_moves = sum(1 for wp in position_win_rates if abs(wp - best_win_prob) <= threshold)
                 playable_moves_count.append(good_moves)
 
-        # Fermeture propre du lecteur de livre
+        # Proper closure of the Polyglot book reader
         if book_reader is not None:
             book_reader.close()
 
-        # Calculs winrate losses per moves (en excluant les coups de théorie)
+        # Calculate win-rate losses per move (ignoring opening book moves)
         for i in range(len(moves_analysis) - 1):
             prob_before = moves_analysis[i]
             prob_after = moves_analysis[i + 1]
             
-            # Si le coup joué sort d'une position de théorie, on ignore la perte (ou on la met à 0)
+            # If it is a book move, set loss to 0.0
             if is_book_move_list[i]:
                 loss = 0.0
             else:
-                if i % 2 == 0:  # White
+                if i % 2 == 0:  # White's turn
                     loss = prob_before - prob_after
-                else:         # Black
+                else:           # Black's turn
                     loss = prob_after - prob_before
                 loss = max(0.0, loss)
                 
@@ -102,7 +104,7 @@ class ChessAnalyser:
         for wp in moves_analysis:
             who_is_winning.append("w" if wp > 0.6 else "b" if wp < 0.4 else "equal")
 
-        # Transmission de la liste des coups de théorie à l'objet AnalysedGame
+        # Store data into AnalysedGame instance
         analysed_game = AnalysedGame(
             extracted_game, 
             win_rate_losses,
@@ -113,7 +115,10 @@ class ChessAnalyser:
             is_book_move_list[1:]
         )
         self.analysed_games.append(analysed_game)
-        print(estimer_elo_partie(analysed_game.black_losses), estimer_elo_partie(analysed_game.white_losses))
+        
+        # Estimate and print Elo performance for both players (for debugging/testing)
+        print("Black Elo estimate:", estimate_game_elo(analysed_game.black_losses))
+        print("White Elo estimate:", estimate_game_elo(analysed_game.white_losses))
 
 
 class AnalysedGame:
@@ -126,7 +131,7 @@ class AnalysedGame:
         playable_moves_count: list[int], 
         who_is_winning: list[str],
         centipoints_history: list[float],
-        is_book_move_list: list[bool] # <--- Ajouté ici
+        is_book_move_list: list[bool]
     ):
         self.headers = game.headers
         self.fen_history = game.fen_history
@@ -135,12 +140,11 @@ class AnalysedGame:
         self.who_is_winning = who_is_winning
         self.centipoints_history = centipoints_history 
         self.is_book_move = is_book_move_list
-        print(self.is_book_move)
         
         self.win_rate_losses = win_rate_losses
         self.playable_moves_count = playable_moves_count
         
-        # Séparation par joueur
+        # Split metrics between players
         self.white_losses = win_rate_losses[0::2]
         self.black_losses = win_rate_losses[1::2]
         
@@ -150,9 +154,10 @@ class AnalysedGame:
         self.readable_evaluation = []
         for cp in centipoints_history:
             if abs(cp) > 90000:
-                if f"M{(100000 - abs(cp))}"=="M0":
+                mate_distance = 100000 - abs(cp)
+                if mate_distance == 0:
                     self.readable_evaluation.append("1 - 0" if cp > 0 else "0 - 1")
                 else:
-                    self.readable_evaluation.append(f"M{(100000 - abs(cp))}")
+                    self.readable_evaluation.append(f"M{mate_distance}")
             else:
                 self.readable_evaluation.append(f"{cp / 100:+.2f}")
