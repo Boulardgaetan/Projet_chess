@@ -1,21 +1,29 @@
-import math
 import chess
 import chess.engine
+import chess.polyglot
 from src.parser import ExtractedGame
-from src.utils import get_path, centipoints_to_win_rate,estimer_elo_partie
+from src.utils import get_path, centipoints_to_win_rate, estimer_elo_partie
 
 class ChessAnalyser:
 
     def __init__(self):
         self.stockfish_path = get_path("stockfish", "stockfish.exe")
+        self.book_path = get_path("assets","book_moves","Performance.bin")
         self.analysed_games = []
 
     def analyse_game(self, extracted_game: ExtractedGame):
         """Analyses the game with Stockfish : win-rate, losses, complexity and centipawns."""
-        moves_analysis = []       # Win-rate of the position(best move)
-        playable_moves_count = [] # Number of playable move for each position
-        centipoints_history = []  # Brut_score of the positions
-        win_rate_losses = []      # Winrate losses, even index for white losses and odd index for black losses
+        moves_analysis = [] 
+        playable_moves_count = [] 
+        centipoints_history = [] 
+        win_rate_losses = [] 
+        is_book_move_list = [] # <--- Pour tracer si le coup est de la théorie
+
+        # Ouverture simultanée du moteur et du livre d'ouvertures
+        try:
+            book_reader = chess.polyglot.open_reader(self.book_path)
+        except Exception:
+            book_reader = None  # Sécurité si le fichier est absent
 
         with chess.engine.SimpleEngine.popen_uci(self.stockfish_path) as engine:
             limit = chess.engine.Limit(depth=14)
@@ -23,6 +31,16 @@ class ChessAnalyser:
             for fen in extracted_game.fen_history:
                 board = chess.Board(fen)
                 
+                # 1. Vérification si la position actuelle est dans le livre d'ouverture
+                in_book = False
+                if book_reader is not None:
+                    try:
+                        book_reader.find(board)
+                        in_book = True
+                    except IndexError:
+                        in_book = False
+                is_book_move_list.append(in_book)
+
                 # Handling game endings
                 if board.is_game_over():
                     if board.is_checkmate():
@@ -46,7 +64,6 @@ class ChessAnalyser:
                     raw_score = info["score"].white()
                     score_cp = raw_score.score(mate_score=100000)
                     
-                    # Extracts the evaluation of the best move
                     if idx == 0:
                         best_cp = score_cp
                         
@@ -56,42 +73,47 @@ class ChessAnalyser:
                 moves_analysis.append(best_win_prob)
                 centipoints_history.append(best_cp)
 
-                # Calculs the number of playable moves
                 threshold = 0.05
                 good_moves = sum(1 for wp in position_win_rates if abs(wp - best_win_prob) <= threshold)
                 playable_moves_count.append(good_moves)
 
-        # Calculs winrate losses per moves
+        # Fermeture propre du lecteur de livre
+        if book_reader is not None:
+            book_reader.close()
+
+        # Calculs winrate losses per moves (en excluant les coups de théorie)
         for i in range(len(moves_analysis) - 1):
             prob_before = moves_analysis[i]
             prob_after = moves_analysis[i + 1]
             
-            if i % 2 == 0:  # White
-                loss = prob_before - prob_after
-            else:           # Black
-                loss = prob_after - prob_before
+            # Si le coup joué sort d'une position de théorie, on ignore la perte (ou on la met à 0)
+            if is_book_move_list[i]:
+                loss = 0.0
+            else:
+                if i % 2 == 0:  # White
+                    loss = prob_before - prob_after
+                else:         # Black
+                    loss = prob_after - prob_before
+                loss = max(0.0, loss)
                 
-            loss = max(0.0, loss)
             win_rate_losses.append(loss)
 
-        # Calculs who is winning
         who_is_winning = []
         for wp in moves_analysis:
             who_is_winning.append("w" if wp > 0.6 else "b" if wp < 0.4 else "equal")
 
-        # Creation of the final object
+        # Transmission de la liste des coups de théorie à l'objet AnalysedGame
         analysed_game = AnalysedGame(
             extracted_game, 
             win_rate_losses,
             moves_analysis,
             playable_moves_count, 
             who_is_winning, 
-            centipoints_history
+            centipoints_history,
+            is_book_move_list[1:]
         )
         self.analysed_games.append(analysed_game)
-        print(estimer_elo_partie(analysed_game.black_losses),estimer_elo_partie(analysed_game.white_losses))
-        print(analysed_game.white_losses)
-        print(analysed_game.black_losses)
+        print(estimer_elo_partie(analysed_game.black_losses), estimer_elo_partie(analysed_game.white_losses))
 
 
 class AnalysedGame:
@@ -103,14 +125,17 @@ class AnalysedGame:
         winrates: list[float],
         playable_moves_count: list[int], 
         who_is_winning: list[str],
-        centipoints_history: list[float]
+        centipoints_history: list[float],
+        is_book_move_list: list[bool] # <--- Ajouté ici
     ):
         self.headers = game.headers
         self.fen_history = game.fen_history
         self.san = game.san_moves
         self.winrates = winrates
         self.who_is_winning = who_is_winning
-        self.centipoints_history = centipoints_history # <--- Stocké ici !
+        self.centipoints_history = centipoints_history 
+        self.is_book_move = is_book_move_list
+        print(self.is_book_move)
         
         self.win_rate_losses = win_rate_losses
         self.playable_moves_count = playable_moves_count
@@ -121,12 +146,13 @@ class AnalysedGame:
         
         self.white_playable_counts = playable_moves_count[0::2]
         self.black_playable_counts = playable_moves_count[1::2]
+        
         self.readable_evaluation = []
         for cp in centipoints_history:
             if abs(cp) > 90000:
                 if f"M{(100000 - abs(cp))}"=="M0":
-                    self.readable_evaluation.append("1 - 0" if cp >0 else "0 - 1")
+                    self.readable_evaluation.append("1 - 0" if cp > 0 else "0 - 1")
                 else:
                     self.readable_evaluation.append(f"M{(100000 - abs(cp))}")
             else:
-                self.readable_evaluation.append(f"{cp / 100:+.2f}") # Affiche par exemple "+1.50" ou "-0.30"
+                self.readable_evaluation.append(f"{cp / 100:+.2f}")
