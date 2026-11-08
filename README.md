@@ -24,11 +24,8 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 │
 ├── calculate_model/           # Model calibration pipeline
 │   ├── dataset.csv            # Extracted data for regression
-<<<<<<< HEAD
 │   ├── progress.json          # Indicates the state of the data acquisition
 │   ├── extracted_games.pgn    # Extracted games by the script from_pgn_to_data.py
-=======
->>>>>>> 1386e89577a6c9336ca98123e3031b8d626fd861
 │   ├── games.pgn              # Official games used for calibration
 │   ├── from_pgn_to_data.py    # Extracts reliable data into dataset.csv
 │   ├── verify_brackets.py     # Verifies the brackets' homogeneity and the number of games
