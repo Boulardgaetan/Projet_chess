@@ -9,6 +9,7 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 ```text
 /Projet_chess
 │
+├── .github/workflows/ci.yml   # Python checks policy
 ├── assets/                    # Images, sounds, and opening book
 ├── env1/                      # Python virtual environment
 ├── stockfish/                 # Stockfish engine binary
@@ -31,6 +32,10 @@ That is why I intend to provide an open-source analyzer under the terms of the G
 │   ├── verify_brackets.py     # Verifies the brackets' homogeneity and the number of games
 │   └── from_csv_to_model.py   # Calculates regression coefficients via scipy
 │
+├── tests/                     # Tests of the source codes
+|   ├── test_example.py        # Contains en example of test
+|   └── ...
+|
 ├── partie.png                 # Sample game / PGN illustration
 ├── LICENSE                    # GNU GPLv3 License
 ├── README.md                  # Project documentation
@@ -66,7 +71,7 @@ Create and activate an isolated Python environment:
 Install the required packages within your active environment:
 
 ```bash
-python -m pip install pygame chess pandas numpy scipy matplotlib
+python -m pip install pygame chess pandas numpy scipy matplotlib chess-detect
 ```
 
 ## Methodology & Architecture
