@@ -19,3 +19,6 @@ calculate_model/progress.json
 # Ignores the book moves file Performance.bin and the pgn from my game
 assets/book_moves/Performance.bin
 partie.pgn
+
+# Ignores the ruff-related files
+src/projet_chess.egg-info

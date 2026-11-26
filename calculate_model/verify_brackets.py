@@ -1,11 +1,13 @@
+import os
+
 import chess.pgn as pgn
 import pandas as pd
-import os
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 extract_path = os.path.join(PROJECT_ROOT, "calculate_model", "extracted_games.pgn")
 csv_path = os.path.join(PROJECT_ROOT, "calculate_model", "dataset.csv")
+
 
 def get_elo_bracket(elo: int) -> str:
     """Determines the Elo bracket for a given rating."""
@@ -24,7 +26,8 @@ def get_elo_bracket(elo: int) -> str:
     else:
         return "2600+"
 
-with open(extract_path, "r", encoding="utf-8") as extracted_games:
+
+with open(extract_path, encoding="utf-8") as extracted_games:
     quotas = {
         "1400-1600": 0,
         "1600-1800": 0,
@@ -32,7 +35,7 @@ with open(extract_path, "r", encoding="utf-8") as extracted_games:
         "2000-2200": 0,
         "2200-2400": 0,
         "2400-2600": 0,
-        "2600+": 0
+        "2600+": 0,
     }
     game_count = 0
 
@@ -41,7 +44,7 @@ with open(extract_path, "r", encoding="utf-8") as extracted_games:
         if game is None:
             print("End of PGN file reached.")
             break
-                
+
         white_elo_str = game.headers.get("WhiteElo", "")
         black_elo_str = game.headers.get("BlackElo", "")
 
