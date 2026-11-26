@@ -1,7 +1,7 @@
 import pygame
 import sys
 from chess import Board
-from src.chess_analyser import ChessAnalyser,AnalysedGame
+from src.chess_analyser import ChessAnalyser
 from src.gui import draw_board, draw_bar, SQUARE_SIZE
 from src.parser import ExtractedGame
 

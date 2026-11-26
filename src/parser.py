@@ -1,5 +1,8 @@
 import chess
 import chess.pgn
+from chess_detect import ChessDetector
+
+detector = ChessDetector(lang="en", arrows=False)
 
 class ExtractedGame:
     def __init__(self, game: chess.pgn.Game):
@@ -8,6 +11,8 @@ class ExtractedGame:
         self.fen_history = self.build_fen_history()
         self.san_moves = self.build_san_moves()
         self.long_enough = self.is_valid_for_analysis()
+        self.comments = self.comment_game()
+        print(self.game)
 
     def _extract_headers(self) -> dict[str,str]:
         """Extracts the main metadatas of the game"""
@@ -43,3 +48,6 @@ class ExtractedGame:
     def is_valid_for_analysis(self, min_moves=10) -> bool:
         """Returns a boolean that indicates if the game is enough long for analysis"""
         return len(self.fen_history) > min_moves
+
+    def comment_game(self):
+        return detector._analyze_game(self.game)

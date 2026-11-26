@@ -1,10 +1,6 @@
-import os
-import pygame
-import math
 import chess
 from src.utils import get_path, estimate_game_elo, centipoints_to_win_rate
 from src.parser import ExtractedGame
-import numpy as np
 
 class ChessAnalyser:
 
