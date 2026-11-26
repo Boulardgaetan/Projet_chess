@@ -4,6 +4,7 @@ from chess_detect import ChessDetector
 
 detector = ChessDetector(lang="en", arrows=False)
 
+
 class ExtractedGame:
     def __init__(self, game: chess.pgn.Game):
         self.game = game
@@ -14,7 +15,7 @@ class ExtractedGame:
         self.comments = self.comment_game()
         print(self.game)
 
-    def _extract_headers(self) -> dict[str,str]:
+    def _extract_headers(self) -> dict[str, str]:
         """Extracts the main metadatas of the game"""
         return {
             "white": self.game.headers.get("White", "Unknown"),
@@ -22,22 +23,22 @@ class ExtractedGame:
             "result": self.game.headers.get("Result", "*"),
             "white_elo": self.game.headers.get("WhiteElo", "?"),
             "black_elo": self.game.headers.get("BlackElo", "?"),
-            "eco": self.game.headers.get("ECO", "")
+            "eco": self.game.headers.get("ECO", ""),
         }
 
     def build_fen_history(self) -> list[str]:
         """Builds the complete fen history"""
         board = self.game.board()
         fen_history = [board.fen()]
-        
+
         for move in self.game.mainline_moves():
             board.push(move)
             fen_history.append(board.fen())
-            
+
         return fen_history
 
     def build_san_moves(self) -> list[str]:
-        """Converts the main into a readable list of strings (ex: ['e4', 'e5', 'Nf3'])."""
+        """Converts the main into a readable list of strings (ex: ['e4', 'e5'])."""
         board = self.game.board()
         san_list = []
         for move in self.game.mainline_moves():

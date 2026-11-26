@@ -1,0 +1,25 @@
+[project]
+name = "projet-chess"
+version = "0.1.0"
+description = "Analyse de parties d'échecs"
+requires-python = ">=3.10"
+dependencies = [
+    "chess", "chess-detect", "pygame", "numpy", "pandas", "matplotlib", "scipy"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"] # Erreurs classiques, imports triés, syntaxe moderne
