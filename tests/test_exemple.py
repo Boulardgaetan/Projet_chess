@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 def test_alignement_coups_theoriques():
     # Exemple basé sur votre logique précédente
     raw_is_book = [True, True, False]  # Inclut la position de départ
